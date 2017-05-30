@@ -21,6 +21,11 @@ class Field:
 		else:
 			logging.info("User tried to change field which is already set")
 			return False
+	def checkIfEmpty(self):
+		if(self.state == "-"):
+			return True
+		else:
+			return False
 
 class Board:
 	def __init__(self, sizeBoard):
@@ -38,6 +43,24 @@ class Board:
 				boardAsString +=  self.board[y][x].state
 			boardAsString +=  "\n"
 		return boardAsString
+	
+	def setOnNthEmpty(self, user, n):
+		it = 0
+		for y in range(self.sizeBoard):
+			for x in range(self.sizeBoard):
+				if(not self.board[y][x].checkIfEmpty()):
+					continue
+				if(it==n):
+					self.setField(user,x,y)
+				it+=1
+		pass
+	
+	def nOfEmptyFields(self):
+		emptyFields = 0
+		for y in range(self.sizeBoard):
+			for x in range(self.sizeBoard):
+				emptyFields += self.board[y][x].checkIfEmpty()
+		return emptyFields
 	
 	def setField(self, user, x, y):
 		try:

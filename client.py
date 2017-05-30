@@ -15,14 +15,12 @@ class FSM(object):
 class GomokuClient(FSM):
 	
 	def handle(self, response):
-		if(response == "e"):
-			self.next_state = self
-		elif(response == "b"):
+		print response
+		response = raw_input("Please give postion in form X,Y or argument: e - exit, b - back to menu \n")
+		self.next_state = self
+		if(response == "b"):
+			logging.info("next state ChooseGameClient")
 			self.next_state = ChooseGameClient()
-		else:
-			print response
-			response = raw_input("Please give postion in form X,Y or argument: e - exit, b - back to menu \n")
-			self.next_state = self
 		return response
 	
 	def getNextState(self):

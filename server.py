@@ -27,28 +27,32 @@ class GomokuServer(FSM):
 		if(response == "runGame"):
 			msg = self.getInitialView()
 			self.next_state = self
+			return msg
 			
-		else:
-			if(argType == 0):
-				msg = "Option or position written incorrectly"
-				logging.info("Client wrote position or paramter incorrectly")
-				self.next_state = self
-			elif(argType == 1):
-				logging.info("Client sent x="+str(self.x)+" and y="+str(self.y))
-				if( not self.game.playRealUser(self.x, self.y)):
-					logging.info("Inocorrect field (out of range or with marker)")
-					msg = "Inocorrect field (out of range or with marker)"
-				else:
-					msg = self.game.getBoard()
-				self.next_state = self
-			elif(argType == 2):
-				if(response == "e"):
-					self.next_state = self
-				elif(response == "b"):
-					msg = "b"
-					self.next_state = ChooseGameServer()
+		if(argType == 0):
+			msg = "Option or position written incorrectly"
+			logging.info("Client wrote position or paramter incorrectly")
+			self.next_state = self
+			return msg
+		
+		if(argType == 1):
+			logging.info("Client sent x="+str(self.x)+" and y="+str(self.y))
+			if( not self.game.playRealUser(self.x, self.y)):
+				logging.info("Inocorrect field (out of range or with marker)")
+				msg = "Inocorrect field (out of range or with marker)"
+			else:
+				self.game.playComputerUser()
+				msg = self.game.getBoard()
+			self.next_state = self
+			return msg
+		
+		if(argType == 2):
+			msg = "b"
+			logging.info("next state ChooseGameServer")
+			self.next_state = ChooseGameServer()
+			return msg
 			
-		return msg
+		
 	
 	def checkArg(self, arg):
 		if(arg.find(",") != -1):
@@ -63,7 +67,7 @@ class GomokuServer(FSM):
 				return 0
 		
 		else:
-			if(arg == "e" or arg == "b"):
+			if(arg == "b"):
 				return 2
 			else:
 				return 0
