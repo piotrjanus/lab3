@@ -44,6 +44,11 @@ class GomokuServer(FSM):
 				self.game.playComputerUser()
 				msg = self.game.getBoard()
 			self.next_state = self
+			
+			if(self.game.win == 1):
+				msg = "User win"
+			elif(self.game.win == -1):
+				msg = "Computer win"
 			return msg
 		
 		if(argType == 2):

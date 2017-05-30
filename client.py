@@ -16,11 +16,18 @@ class GomokuClient(FSM):
 	
 	def handle(self, response):
 		print response
+		if("win" in response):
+			logging.info(response)
+			self.next_state = ChooseGameClient()
+			response = "b"
+			return response
+		
 		response = raw_input("Please give postion in form X,Y or argument: e - exit, b - back to menu \n")
 		self.next_state = self
 		if(response == "b"):
 			logging.info("next state ChooseGameClient")
 			self.next_state = ChooseGameClient()
+		
 		return response
 	
 	def getNextState(self):
@@ -36,7 +43,6 @@ class ChooseGameClient(FSM):
 			self.next_state = GomokuClient()
 			msg = "runGame"
 		else:
-			print response
 			msg = raw_input("1 - gomoku, 2 - more/less \n")
 			logging.info("next state ChooseGameClient")
 			self.next_state = self
