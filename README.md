@@ -1,4 +1,8 @@
 # lab3
 Server-client game
 
-Still not working but I am improving it
+to run:
+python server.py
+python client.py
+
+Unit tests are still missing.
