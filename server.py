@@ -3,6 +3,7 @@ import sys
 import logging
 import os
 import abc
+from random import randint
 from gomoku import Gomoku
 
 class FSM(object):
@@ -10,9 +11,54 @@ class FSM(object):
 	@abc.abstractmethod
 	def handle(self, reponse):
 		pass
-	@abc.abstractmethod
+	
 	def getNextState(self):
-		pass
+		return self.next_state
+	
+class MoreLessServer(FSM):
+	def __init__(self):
+		self.number = randint(0,100)
+	
+	def handle(self, response):
+		argType = self.checkArg(response)
+		msg = ""
+		
+		if(argType == 0):
+			msg = "Incorrect argument"
+			logging.info("Client sent incorrect parameter")
+			self.next_state = self
+			return msg
+		if(argType == 1):
+			msg = "Server generated number"
+			self.next_state = self
+			return msg
+		if(argType == 2):
+			msg = "b"
+			logging.info("next state ChooseGameServer")
+			self.next_state = ChooseGameServer()
+			return msg
+		if(argType == 3):
+			logging.info("Client sent x="+str(self.clientNumber))
+			if(self.clientNumber > self.number):
+				msg = "Less"
+			elif(self.clientNumber < self.number):
+				msg = "More"
+			else:
+				msg = "win"
+			self.next_state = self
+			return msg
+	
+	def checkArg(self, arg):
+		if(arg=="runGame"):
+			return 1
+		elif(arg=="b"):
+			return 2
+		else:
+			try: 
+				self.clientNumber = int(arg)
+				return 3
+			except ValueError:
+				return 0
 	
 class GomokuServer(FSM):
 	def __init__(self):
@@ -77,8 +123,6 @@ class GomokuServer(FSM):
 			else:
 				return 0
 		
-	def getNextState(self):
-		return self.next_state
 
 class ChooseGameServer(FSM): 
 	
@@ -88,16 +132,24 @@ class ChooseGameServer(FSM):
 			logging.info("Client chose Gomoku")
 			logging.info("next state GomokuServer")
 			self.next_state = GomokuServer()
-			msg = "1"
+			msg = response
+		elif(response == "2"):	
+			logging.info("Client chose MoreLess")
+			logging.info("next state MoreLessServer")
+			self.next_state = MoreLessServer()
+			msg = response
+		elif(response == "EMPTY"):
+			logging.info("Client sent empty message")
+			self.next_state = self
+			msg = "EMPTY"
 		else:
 			logging.info("Client chose invalid game")
 			logging.info("next state ChooseGameServer")
 			self.next_state = self
+			msg = "WRONG"
 			
 		return msg
 		
-	def getNextState(self):
-		return self.next_state
 
 class EchoServer:
 	def __init__(self,address, port, data_size):

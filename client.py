@@ -8,9 +8,29 @@ class FSM(object):
 	@abc.abstractmethod
 	def handle(self, reponse):
 		pass
-	@abc.abstractmethod
 	def getNextState(self):
-		pass
+		return self.next_state
+	
+class MoreLessClient(FSM):
+	
+	def handle(self, response):
+		print response
+		if("win" in response):
+			logging.info(response)
+			self.next_state = ChooseGameClient()
+			response = "b"
+			return response
+		
+		msg = raw_input("Try to guess number in range 0-100 (e - exit, b - back to menu) \n")
+		
+		if not msg:
+			msg = "EMPTY"
+		self.next_state = self
+		if(msg == "b"):
+			logging.info("next state ChooseGameClient")
+			self.next_state = ChooseGameClient()
+		
+		return msg
 
 class GomokuClient(FSM):
 	
@@ -22,17 +42,16 @@ class GomokuClient(FSM):
 			response = "b"
 			return response
 		
-		response = raw_input("Please give postion in form X,Y or argument: e - exit, b - back to menu \n")
+		msg = raw_input("Please give postion in form X,Y or argument: e - exit, b - back to menu \n")
+		if not msg:
+			msg = "EMPTY"
 		self.next_state = self
-		if(response == "b"):
+		if(msg == "b"):
 			logging.info("next state ChooseGameClient")
 			self.next_state = ChooseGameClient()
 		
-		return response
+		return msg
 	
-	def getNextState(self):
-		return self.next_state
-
 class ChooseGameClient(FSM):
 	
 	def handle(self, response):
@@ -42,16 +61,23 @@ class ChooseGameClient(FSM):
 			logging.info("next state GomokuClient")
 			self.next_state = GomokuClient()
 			msg = "runGame"
+		elif( response == "2"):
+			logging.info("next state MoreLessClient")
+			self.next_state = MoreLessClient()
+			msg = "runGame"
 		else:
-			msg = raw_input("1 - gomoku, 2 - more/less \n")
+			if(response == "EMPTY"):
+				print("please give non empty parameter")
+			if(response == "WRONG"):
+				print("please give correct parameter")
+			msg = raw_input("1 - gomoku, 2 - more/less, e - exit \n")
+			if not msg:
+				msg = "EMPTY"
 			logging.info("next state ChooseGameClient")
 			self.next_state = self
 			
 		return msg
 	
-	def getNextState(self):
-		return self.next_state
-
 class EchoClient:
 	def __init__(self,address, port, data_size):
 		self.data_size = data_size
